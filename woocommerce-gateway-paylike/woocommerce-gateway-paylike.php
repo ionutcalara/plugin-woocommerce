@@ -330,6 +330,7 @@ if ( ! class_exists( 'WC_Paylike' ) ) {
 			}
 			include_once( plugin_basename( 'includes/legacy.php' ) );
 			include_once( plugin_basename( 'includes/currencies.php' ) );
+			include_once( plugin_basename( 'includes/class-paylike-advanced-features.php' ) );
 			include_once( plugin_basename( 'includes/class-wc-gateway-paylike.php' ) );
 			load_plugin_textdomain( 'woocommerce-gateway-paylike', false, plugin_basename( dirname( __FILE__ ) ) . '/languages' );
 			add_filter( 'woocommerce_payment_gateways', array( $this, 'add_gateways' ) );

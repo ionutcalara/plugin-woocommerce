@@ -320,6 +320,48 @@ class WC_Gateway_Paylike extends WC_Payment_Gateway {
 		return $value;
 	}
 
+
+	/**
+	 * Validate the surcharge percentage field.
+	 *
+	 * @param string $key the name of the attribute.
+	 * @param string $value the value of the input.
+	 *
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public function validate_surcharge_percentage_field( $key, $value ) {
+
+		if ( $value > 100 || $value < 0 ) {
+			$error = __( 'The percentage must be a number between 0 and 100', 'woocommerce-gateway-paylike' );
+			WC_Admin_Settings::add_error( $error );
+			throw new Exception( $error );
+		}
+
+		return $value;
+	}
+
+	/**
+	 * Validate the surcharge fee field.
+	 *
+	 * @param string $key the name of the attribute.
+	 * @param string $value the value of the input.
+	 *
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public function validate_surcharge_fee_field( $key, $value ) {
+
+		if ( $value < 0 ) {
+			$error = __( 'The fee must be a greater or equal to 0', 'woocommerce-gateway-paylike' );
+			WC_Admin_Settings::add_error( $error );
+			throw new Exception( $error );
+		}
+
+		return $value;
+	}
+
+
 	/**
 	 * Get_icon function.
 	 *
@@ -1053,7 +1095,7 @@ class WC_Gateway_Paylike extends WC_Payment_Gateway {
 	 *
 	 * @return string
 	 */
-	function get_signature( $order_id ) {
+	public function get_signature( $order_id ) {
 		return strtoupper( md5( $this->get_order_total() . $order_id . $this->public_key ) );
 	}
 
@@ -1118,6 +1160,50 @@ class WC_Gateway_Paylike extends WC_Payment_Gateway {
 		if ( ! empty( $emails ) && ! empty( $order_id ) ) {
 			$emails['WC_Email_Failed_Order']->trigger( $order_id );
 		}
+	}
+
+	/**
+	 * Generate Admin script.
+	 *
+	 * @param  mixed $key
+	 * @param  mixed $data
+	 *
+	 * @since  1.0.0
+	 * @return string
+	 */
+	public function generate_script_html( $key, $data ) {
+
+		$show = __( 'Show', 'woocommerce-gateway-paylike' );
+		$hide = __( 'Hide', 'woocommerce-gateway-paylike' );
+		ob_start();
+		?>
+		<style>
+			.toggle-advanced {
+				font-size: 12px;
+				margin-left: 5px;
+			}
+		</style>
+		<script>
+            jQuery(document).ready(function ($) {
+                var $title = $('#woocommerce_paylike_advanced');
+                $title.append('<a class="toggle-advanced" href="#">Show</a>');
+                var $advanced = $('#woocommerce_paylike_advanced').next('table');
+                $advanced.toggle();
+                $(document).on('click', '.toggle-advanced', function (e) {
+                    e.preventDefault();
+                    $advanced.toggle();
+                    if ($(this).text() == "<?php echo $show ?>") {
+                        $(this).text("<?php echo $hide ?>")
+                    } else {
+                        $(this).text("<?php echo $show ?>")
+                    }
+                })
+            });
+
+		</script>
+		<?php
+
+		return ob_get_clean();
 	}
 
 
@@ -1252,4 +1338,6 @@ class WC_Gateway_Paylike extends WC_Payment_Gateway {
 
 
 	}
+
+
 }
